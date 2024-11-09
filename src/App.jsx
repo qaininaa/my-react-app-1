@@ -1,12 +1,11 @@
 import React from "react";
 import LoginPage from "./pages/login";
-import AuthLayout from "./components/layouts/AuthLayout";
-import LoginForm from "./components/Fragments/LoginForm";
+import RegisterPage from "./pages/register";
 
 function App() {
   return (
     <div className="flex justify-center items-center min-h-screen">
-      <LoginPage></LoginPage>
+      <RegisterPage />
     </div>
   );
 }

@@ -1,14 +1,14 @@
-import LoginForm from "../components/Fragments/LoginForm";
+import RegisterForm from "../components/Fragments/RegisterForm";
 import AuthLayout from "../components/layouts/AuthLayout";
 
-const LoginPage = () => {
+const RegisterPage = () => {
   return (
     <>
       <AuthLayout title="Login">
-        <LoginForm />
+        <RegisterForm />
       </AuthLayout>
     </>
   );
 };
 
-export default LoginPage;
+export default RegisterPage;
