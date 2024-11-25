@@ -1,12 +1,24 @@
 import React from "react";
-import LoginPage from "./pages/login";
-import RegisterPage from "./pages/register";
+import { useNavigate } from "react-router-dom";
 
 function App() {
+  const navigate = useNavigate();
   return (
-    <div className="flex justify-center items-center min-h-screen">
-      <RegisterPage />
-    </div>
+    <>
+      <div>
+        <ul>
+          <li>
+            <button
+              type="button"
+              className="border-2 bg-blue-700 text-white p-2 px-4 text-sm"
+              onClick={() => navigate("/login")}
+            >
+              Login
+            </button>
+          </li>
+        </ul>
+      </div>
+    </>
   );
 }
 

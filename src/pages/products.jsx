@@ -1,6 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import CardProducts from "../components/Fragments/CardProducts";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { fetchStore } from "../service/productService";
+import { getUsername } from "../service/auth.service";
 
 const Products = [
   {
@@ -21,20 +24,22 @@ const Products = [
   },
 ];
 
-const ProductsPage = () => {
+export default function ProductsPage() {
   const navigate = useNavigate();
-  const [chart, setChart] = useState([
-    {
-      id: 10,
-      brand: "sepatu",
-      price: 10000,
-      qty: 10,
-    },
-  ]);
+  const [products, setProducts] = useState([]);
+  const [chart, setChart] = useState([]);
+  const [totalPrice, setTotalPrice] = useState(0);
+  const [username, setUsername] = useState("");
+
+  useEffect(() => {
+    fetchStore((data) => {
+      setProducts(data);
+    });
+  }, []);
 
   const handleCart = (product) => {
     setChart((prevChart) => {
-      const isAlreadyInCart = prevChart.some((item) => item.id === product.id);
+      const isAlreadyInCart = prevChart.find((item) => item.id === product.id);
       if (isAlreadyInCart) {
         return prevChart.map((item) =>
           item.id === product.id ? { ...item, qty: item.qty + 1 } : item
@@ -45,9 +50,21 @@ const ProductsPage = () => {
     });
   };
 
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    setUsername(getUsername(token));
+  }, []);
+
+  useEffect(() => {
+    let sum = 0;
+    for (let i = 0; i < chart.length; i++) {
+      sum += chart[i].qty * chart[i].price;
+    }
+    setTotalPrice(sum);
+  }, [chart]);
+
   const handleLogout = () => {
-    localStorage.removeItem("email");
-    localStorage.removeItem("password");
+    localStorage.removeItem("token");
     navigate("/login");
   };
 
@@ -55,8 +72,7 @@ const ProductsPage = () => {
     <>
       <div className="w-full flex bg-blue-800 p-3 justify-end items-center gap-x-8">
         <p className="text-white">
-          <span className="font-semibold text-xl mr-2">Hallo!</span>{" "}
-          {localStorage.getItem("email")}
+          <span className="font-semibold text-xl mr-2">Hallo!</span> {username}
         </p>
 
         <button
@@ -69,11 +85,11 @@ const ProductsPage = () => {
       </div>
       <div className="flex mt-4 gap-2 p-2 ">
         <div className="flex flex-wrap gap-2 w-2/3">
-          {Products.map((product) => (
+          {products.map((product) => (
             <CardProducts key={product.id}>
-              <CardProducts.Header img={product.img} />
-              <CardProducts.Body brand={product.brand}>
-                {product.desc}
+              <CardProducts.Header img={product.image} />
+              <CardProducts.Body brand={product.title}>
+                {product.description}
               </CardProducts.Body>
               <CardProducts.Footer
                 price={product.price}
@@ -95,20 +111,43 @@ const ProductsPage = () => {
               </tr>
             </thead>
             <tbody>
-              {chart.map((item) => (
-                <tr key={item.id}>
-                  <td>{item.brand}</td>
-                  <td>{item.price}</td>
-                  <td>{item.qty}</td>
-                  <td>{item.price * item.qty}</td>
-                </tr>
-              ))}
+              {chart.length > 0 &&
+                chart.map((item) => (
+                  <tr key={item.id}>
+                    <td>{item.title.substring(0, 20)}...</td>
+                    <td>
+                      {item.price.toLocaleString("en-US", {
+                        style: "currency",
+                        currency: "USD",
+                        maximumFractionDigits: 0,
+                      })}
+                    </td>
+                    <td>{item.qty}</td>
+                    <td>
+                      {(item.price * item.qty).toLocaleString("en-US", {
+                        style: "currency",
+                        currency: "USD",
+                        maximumFractionDigits: 0,
+                      })}
+                    </td>
+                  </tr>
+                ))}
+              <tr>
+                <td colSpan={3} className="font-bold">
+                  Total Price
+                </td>
+                <td className="font-bold">
+                  {totalPrice.toLocaleString("en-US", {
+                    style: "currency",
+                    currency: "USD",
+                    maximumFractionDigits: 0,
+                  })}
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>
       </div>
     </>
   );
-};
-
-export default ProductsPage;
+}
